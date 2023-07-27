@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.project.PurchaseOrder.entities.User;
 import com.project.PurchaseOrder.repositories.UserRepository;
+import com.project.PurchaseOrder.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class UserService {
@@ -27,7 +28,7 @@ public class UserService {
 	}
 	
 	public User findById(Long id) {
-		return userRepository.findById(id).get();
+		return userRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException(id));
 	}
 	
 	public User addUser(User user) {

@@ -1,18 +1,17 @@
 package com.project.PurchaseOrder.services;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.project.PurchaseOrder.entities.User;
 import com.project.PurchaseOrder.repositories.UserRepository;
+import com.project.PurchaseOrder.services.exceptions.DatabaseException;
 import com.project.PurchaseOrder.services.exceptions.ResourceNotFoundException;
 
 @Service
@@ -40,7 +39,14 @@ public class UserService {
 	}
 	
 	public void deleteUser(Long id) {
-		userRepository.deleteById(id);
+		try {
+			userRepository.deleteById(id);
+		} catch (EmptyResultDataAccessException e) {
+			// TODO: handle exception
+			throw new ResourceNotFoundException(id);
+		} catch(DataIntegrityViolationException e) {
+			throw new DatabaseException(e.getMessage());
+		}
 	}
 	
 	public User updateUser(Long id, User user) {

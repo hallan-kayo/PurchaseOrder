@@ -14,6 +14,8 @@ import com.project.PurchaseOrder.repositories.UserRepository;
 import com.project.PurchaseOrder.services.exceptions.DatabaseException;
 import com.project.PurchaseOrder.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class UserService {
 
@@ -50,8 +52,19 @@ public class UserService {
 	}
 	
 	public User updateUser(Long id, User user) {
-		User result = userRepository.getReferenceById(id);
-		BeanUtils.copyProperties(user, result, "id");
-		return userRepository.save(result);
+		try {
+			User entity = userRepository.getReferenceById(id);
+			updateData(entity, user);
+			return userRepository.save(entity);
+		} catch (EntityNotFoundException e) {
+			e.printStackTrace();
+			throw new ResourceNotFoundException(id);
+		}
+	}
+	
+	private void updateData(User entity, User obj) {
+		entity.setName(obj.getName());
+		entity.setEmail(obj.getEmail());
+		entity.setPhone(obj.getPhone());
 	}
 }
